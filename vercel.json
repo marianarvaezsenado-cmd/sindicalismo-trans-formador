@@ -1,13 +1,19 @@
 {
-  "buildCommand": "pnpm build",
-  "outputDirectory": "dist",
-  "devCommand": "pnpm dev",
-  "installCommand": "pnpm install",
-  "framework": "vite",
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api"
+      "src": "package.json",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server/_core/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/index.html"
     }
   ]
 }
