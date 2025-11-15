@@ -112,7 +112,7 @@ export default function Home() {
             {/* Logo Zaguán arriba */}
             <div className="w-full max-w-md flex justify-center">
               <img 
-                src="/images/logo-zaguan.jpeg" 
+                src="logo-zaguan.jpeg" 
                 alt="Zaguán Transindical" 
                 className="h-24 object-contain"
               />
@@ -150,7 +150,7 @@ export default function Home() {
             {/* Logo Congreso Trans abajo */}
             <div className="w-full max-w-md flex justify-center">
               <img 
-                src="/images/congreso-trans.jpg" 
+                src="congreso-trans.jpg" 
                 alt="Congreso Trans" 
                 className="h-20 object-contain"
               />
