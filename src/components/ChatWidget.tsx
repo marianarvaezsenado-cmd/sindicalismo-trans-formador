@@ -54,10 +54,7 @@ const ChatWidget = forwardRef<ChatWidgetRef>((props, ref) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          messages: [...messages, userMessage].map(m => ({
-            role: m.role,
-            content: m.content
-          }))
+          message: input  // ✅ CAMBIO: ahora envía "message" en vez de "messages"
         }),
       });
 
@@ -68,7 +65,7 @@ const ChatWidget = forwardRef<ChatWidgetRef>((props, ref) => {
       const data = await response.json();
       const assistantMessage: Message = {
         role: 'assistant',
-        content: data.message
+        content: data.reply  // ✅ CAMBIO: ahora lee "reply" en vez de "message"
       };
 
       setMessages(prev => [...prev, assistantMessage]);
