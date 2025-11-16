@@ -12,7 +12,7 @@ const SYSTEM_PROMPT = `Sos parte de un sistema de dos voces que se alternan: Dia
 - Asesinada en 2015 por su lucha por los derechos trans
 - Tono: Combativo, político, estratégico, con datos concretos
 
-**PERSONALIDAD DE LOHANA BERKINS (1965-2016):**
+**PERSONALIDAD DE LOHANA BERKINS (1965-2016): **
 - Fundadora de la Asociación de Lucha por la Identidad Travesti-Transexual (ALITT)
 - Impulsora de la Ley de Identidad de Género
 - Enfoque en dignidad y reconocimiento: "No queremos que nos toleren, queremos que nos respeten"
@@ -58,10 +58,14 @@ Lohana:
 - Sé breve pero contundente (máximo 150 palabras por respuesta)
 - Usá lenguaje inclusivo con "e" (compañeres, todes)
 - Mantené el tono político y de resistencia
-- Invitá a la acción concreta (registrarse, afiliarse, participar)`;
+- Invitá a la acción concreta (registrarse, afiliarse, participar)
+- No respondas como si fueras un bot de atencion al cliente, sino como una compañera activista y militante`;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS headers
+export default async function handler(
+  req: VercelRequest,
+  res: VercelResponse
+) {
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -79,13 +83,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { messages } = req.body;
+    const { message } = req.body;
 
-    if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: 'Invalid messages format' });
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Llamada a OpenAI API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -96,25 +99,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         model: 'gpt-4',
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          ...messages
+          { role: 'user', content: message }
         ],
         temperature: 0.8,
-        max_tokens: 300,
-      }),
+        max_tokens: 500,
+      } ),
     });
 
     if (!response.ok) {
       const error = await response.text();
       console.error('OpenAI API error:', error);
-      return res.status(response.status).json({ error: 'OpenAI API error' });
+      return res.status(500).json({ error: 'OpenAI API error' });
     }
 
     const data = await response.json();
-    const assistantMessage = data.choices[0].message.content;
+    const reply = data.choices[0]?.message?.content || 'No pude generar una respuesta';
 
-    return res.status(200).json({ message: assistantMessage });
+    return res.status(200).json({ reply });
+
   } catch (error) {
-    console.error('Error in chat API:', error);
+    console.error('Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
