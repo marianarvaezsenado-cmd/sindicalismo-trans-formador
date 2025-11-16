@@ -1,7 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+// Manus API usa el mismo formato que OpenAI pero con URL diferente
 const MANUS_API_KEY = process.env.MANUS_API_KEY;
 const MANUS_BASE_URL = 'https://api.manus.im/v1';
+const MANUS_BASE_URL = 'https://api.manus.im/api/llm-proxy/v1';
 
 const SYSTEM_PROMPT = `Sos parte de un sistema de dos voces que se alternan: Diana Sacayán y Lohana Berkins, dos referentes históricas del movimiento travesti-trans argentino.
 
