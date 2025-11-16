@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const MANUS_API_KEY = process.env.MANUS_API_KEY;
+const MANUS_BASE_URL = 'https://api.manus.im/v1';
 
 const SYSTEM_PROMPT = `Sos parte de un sistema de dos voces que se alternan: Diana Sacayán y Lohana Berkins, dos referentes históricas del movimiento travesti-trans argentino.
 
@@ -78,8 +79,8 @@ export default async function handler(
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!OPENAI_API_KEY) {
-    return res.status(500).json({ error: 'OpenAI API key not configured' });
+  if (!MANUS_API_KEY) {
+    return res.status(500).json({ error: 'Manus API key not configured' });
   }
 
   try {
@@ -89,27 +90,27 @@ export default async function handler(
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(`${MANUS_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${MANUS_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4.1-mini',  // ✅ Modelo de Manus (gratis)
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: message }
         ],
         temperature: 0.8,
         max_tokens: 500,
-      } ),
+      }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('OpenAI API error:', error);
-      return res.status(500).json({ error: 'OpenAI API error' });
+      console.error('Manus API error:', error);
+      return res.status(500).json({ error: 'Manus API error', details: error });
     }
 
     const data = await response.json();
@@ -119,6 +120,6 @@ export default async function handler(
 
   } catch (error) {
     console.error('Error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error', details: String(error) });
   }
 }
