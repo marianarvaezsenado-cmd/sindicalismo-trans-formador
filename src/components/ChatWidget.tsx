@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
 
 interface Message {
@@ -6,7 +6,13 @@ interface Message {
   content: string;
 }
 
-export default function ChatWidget() {
+export interface ChatWidgetRef {
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
+}
+
+const ChatWidget = forwardRef<ChatWidgetRef>((props, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -17,6 +23,13 @@ export default function ChatWidget() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Exponer funciones para controlar el widget desde fuera
+  useImperativeHandle(ref, () => ({
+    open: () => setIsOpen(true),
+    close: () => setIsOpen(false),
+    toggle: () => setIsOpen(prev => !prev)
+  }));
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -175,4 +188,8 @@ export default function ChatWidget() {
       )}
     </>
   );
-}
+});
+
+ChatWidget.displayName = 'ChatWidget';
+
+export default ChatWidget;

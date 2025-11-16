@@ -3,8 +3,13 @@ import { Link } from "wouter";
 import { QRCodeSVG } from "qrcode.react";
 import { Calendar, MapPin, AlertTriangle, MessageCircle, ExternalLink } from "lucide-react";
 import { useMockRegistro } from "../hooks/useMockData";
+import { ChatWidgetRef } from "../components/ChatWidget";
 
-export default function Home() {
+interface HomeSimpleProps {
+  chatWidgetRef?: React.RefObject<ChatWidgetRef>;
+}
+
+export default function HomeSimple({ chatWidgetRef }: HomeSimpleProps) {
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -30,6 +35,10 @@ export default function Home() {
     });
   };
 
+  const handleOpenChat = () => {
+    chatWidgetRef?.current?.open();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-blue-50 to-green-50">
       {/* Header */}
@@ -51,7 +60,7 @@ export default function Home() {
             {/* Logo Zaguán */}
             <div className="mb-6">
               <img 
-                src="/logo-zaguan.jpeg" 
+                src="/zaguan-logo.jpeg" 
                 alt="Zaguán Transindical" 
                 className="h-24 object-contain"
               />
@@ -186,13 +195,15 @@ export default function Home() {
 
         {/* Accesos Rápidos */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Link href="/bot">
-            <a className="block bg-gradient-to-br from-pink-400 to-pink-600 text-white rounded-lg p-6 hover:shadow-xl transition-shadow">
-              <MessageCircle className="w-12 h-12 mb-4" />
-              <h3 className="text-xl font-bold mb-2">Hablás con Diana o Lohana</h3>
-              <p className="text-sm">Bot conversacional con IA</p>
-            </a>
-          </Link>
+          {/* Botón del bot - AHORA ABRE EL WIDGET */}
+          <button
+            onClick={handleOpenChat}
+            className="block w-full bg-gradient-to-br from-pink-400 to-pink-600 text-white rounded-lg p-6 hover:shadow-xl transition-shadow text-left"
+          >
+            <MessageCircle className="w-12 h-12 mb-4" />
+            <h3 className="text-xl font-bold mb-2">Hablás con Diana o Lohana</h3>
+            <p className="text-sm">Bot conversacional con IA</p>
+          </button>
 
           <Link href="/calendario">
             <a className="block bg-gradient-to-br from-yellow-400 to-green-500 text-white rounded-lg p-6 hover:shadow-xl transition-shadow">
