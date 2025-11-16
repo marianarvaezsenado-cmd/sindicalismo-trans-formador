@@ -60,7 +60,7 @@ export default function HomeSimple({ chatWidgetRef }: HomeSimpleProps) {
             {/* Logo Zaguán */}
             <div className="mb-6">
               <img 
-                src="/zaguan-logo.jpeg" 
+                src="/logo-zaguan.jpeg" 
                 alt="Zaguán Transindical" 
                 className="h-24 object-contain"
               />
