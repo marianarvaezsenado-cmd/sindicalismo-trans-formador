@@ -1,8 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// Manus API usa el mismo formato que OpenAI pero con URL diferente
-const MANUS_API_KEY = process.env.MANUS_API_KEY;
-const MANUS_BASE_URL = 'https://api.manus.im/api/llm-proxy/v1';
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
@@ -69,7 +66,6 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -82,8 +78,6 @@ export default async function handler(
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!MANUS_API_KEY) {
-    return res.status(500).json({ error: 'Manus API key not configured' });
   if (!GROQ_API_KEY) {
     return res.status(500).json({ error: 'Groq API key not configured' });
   }
@@ -95,17 +89,14 @@ export default async function handler(
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const response = await fetch(`${MANUS_BASE_URL}/chat/completions`, {
     const response = await fetch(GROQ_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${MANUS_API_KEY}`,
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-mini',  // ✅ Modelo de Manus (gratis)
-        model: 'llama-3.1-70b-versatile',  // Modelo rápido y de alta calidad
+        model: 'llama-3.1-70b-versatile',
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: message }
@@ -113,8 +104,8 @@ export default async function handler(
         temperature: 0.8,
         max_tokens: 500,
         top_p: 1,
-        stream: false,
-      }),
+        stream: false
+      })
     });
 
     if (!response.ok) {
