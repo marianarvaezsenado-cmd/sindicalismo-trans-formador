@@ -110,8 +110,6 @@ export default async function handler(
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('Manus API error:', error);
-      return res.status(500).json({ error: 'Manus API error', details: error });
       console.error('Groq API error:', error);
       return res.status(500).json({ error: 'Groq API error', details: error });
     }
