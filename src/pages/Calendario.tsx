@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { trpc } from "@/lib/trpc";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Filter, Star } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 
 const MESES = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -20,13 +19,24 @@ const TIPOS_EFEMERIDES = [
   { value: "otro", label: "Otras" },
 ];
 
+// Datos mock de efemérides
+const EFEMERIDES_MOCK = [
+  { id: 1, dia: 8, mes: 3, titulo: "Día Internacional de la Mujer", tipo: "feminista", descripcion: "Conmemoración de la lucha de las mujeres por sus derechos" },
+  { id: 2, dia: 17, mes: 11, titulo: "Día del Militante", tipo: "sindical", descripcion: "Día de la militancia y organización popular" },
+  { id: 3, dia: 28, mes: 6, titulo: "Día del Orgullo LGBTIQ+", tipo: "trans", descripcion: "Conmemoración de los disturbios de Stonewall" },
+  { id: 4, dia: 31, mes: 3, titulo: "Día de la Visibilidad Trans", tipo: "trans", descripcion: "Visibilización de las personas trans" },
+  { id: 5, dia: 1, mes: 5, titulo: "Día del Trabajador", tipo: "sindical", descripcion: "Día Internacional de los Trabajadores" },
+];
+
 export default function Calendario() {
   const [mesSeleccionado, setMesSeleccionado] = useState(new Date().getMonth() + 1);
   const [tipoFiltro, setTipoFiltro] = useState("todos");
 
-  const { data: efemerides, isLoading } = trpc.efemerides.list.useQuery({
-    mes: mesSeleccionado,
-    tipo: tipoFiltro === "todos" ? undefined : (tipoFiltro as "feminista" | "trans" | "sindical" | "feriado"),
+  // Filtrar efemérides por mes y tipo
+  const efemeridesFiltered = EFEMERIDES_MOCK.filter(e => {
+    const matchMes = e.mes === mesSeleccionado;
+    const matchTipo = tipoFiltro === "todos" || e.tipo === tipoFiltro;
+    return matchMes && matchTipo;
   });
 
   const mesAnterior = () => {
@@ -40,39 +50,34 @@ export default function Calendario() {
   const getTipoBadgeColor = (tipo: string) => {
     switch (tipo) {
       case "feminista":
-        return "bg-primary text-primary-foreground";
+        return "bg-pink-500 text-white";
       case "trans":
-        return "bg-secondary text-secondary-foreground";
+        return "bg-blue-500 text-white";
       case "sindical":
-        return "bg-accent text-accent-foreground";
+        return "bg-red-500 text-white";
       case "feriado":
-        return "bg-destructive text-destructive-foreground";
+        return "bg-green-500 text-white";
       default:
-        return "bg-muted text-muted-foreground";
+        return "bg-gray-500 text-white";
     }
   };
 
-  const esDestacada = (dia: number, mes: number) => {
-    // Destacar el 17 de noviembre (Día del Militante)
-    return dia === 17 && mes === 11;
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-secondary/10 to-accent/10 py-12">
-      <div className="container">
+    <div className="min-h-screen bg-gradient-to-b from-pink-50 via-blue-50 to-purple-50 py-12">
+      <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4 flex items-center justify-center gap-3">
+          <h1 className="text-4xl md:text-5xl font-bold text-pink-600 mb-4 flex items-center justify-center gap-3">
             <CalendarIcon className="h-10 w-10" />
             Calendario de Efemérides
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-gray-700">
             Fechas clave del transfeminismo sindical
           </p>
         </div>
 
         {/* Controles */}
-        <Card className="mb-8 border-primary/50">
+        <Card className="mb-8 border-pink-200">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               {/* Navegación de Mes */}
@@ -80,7 +85,7 @@ export default function Calendario() {
                 <Button variant="outline" size="icon" onClick={mesAnterior}>
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <h2 className="text-2xl font-bold text-primary min-w-[150px] text-center">
+                <h2 className="text-2xl font-bold text-pink-600 min-w-[150px] text-center">
                   {MESES[mesSeleccionado - 1]}
                 </h2>
                 <Button variant="outline" size="icon" onClick={mesSiguiente}>
@@ -90,7 +95,7 @@ export default function Calendario() {
 
               {/* Filtro por Tipo */}
               <div className="flex items-center gap-3 w-full md:w-auto">
-                <Filter className="h-5 w-5 text-muted-foreground" />
+                <Filter className="h-5 w-5 text-gray-600" />
                 <Select value={tipoFiltro} onValueChange={setTipoFiltro}>
                   <SelectTrigger className="w-full md:w-[200px]">
                     <SelectValue />
@@ -109,102 +114,42 @@ export default function Calendario() {
         </Card>
 
         {/* Lista de Efemérides */}
-        {isLoading ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Cargando efemérides...</p>
-          </div>
-        ) : efemerides && efemerides.length > 0 ? (
-          <div className="grid gap-6">
-            {efemerides.map((efemeride: any) => (
-              <Card
-                key={efemeride.id}
-                className={`hover:shadow-lg transition-all ${
-                  esDestacada(efemeride.dia, efemeride.mes)
-                    ? "border-primary border-2 shadow-xl"
-                    : "border-primary/30"
-                }`}
-              >
-                <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
-                  <div className="flex items-start justify-between">
+        <div className="grid gap-4">
+          {efemeridesFiltered.length === 0 ? (
+            <Card>
+              <CardContent className="p-8 text-center text-gray-600">
+                No hay efemérides para este mes con el filtro seleccionado.
+              </CardContent>
+            </Card>
+          ) : (
+            efemeridesFiltered.map((efemeride) => (
+              <Card key={efemeride.id} className="border-l-4 border-l-pink-500">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="text-center min-w-[60px]">
+                      <div className="text-3xl font-bold text-pink-600">{efemeride.dia}</div>
+                      <div className="text-sm text-gray-600">{MESES[efemeride.mes - 1]}</div>
+                    </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="bg-primary text-primary-foreground rounded-lg px-4 py-2 text-center min-w-[60px]">
-                          <div className="text-2xl font-bold">{efemeride.dia}</div>
-                          <div className="text-xs uppercase">{MESES[efemeride.mes - 1].slice(0, 3)}</div>
-                        </div>
-                        <div className="flex-1">
-                          <CardTitle className="text-xl flex items-center gap-2">
-                            {esDestacada(efemeride.dia, efemeride.mes) && (
-                              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                            )}
-                            {efemeride.titulo}
-                          </CardTitle>
-                          <CardDescription className="mt-1">
-                            {efemeride.descripcion}
-                          </CardDescription>
-                        </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-xl font-bold">{efemeride.titulo}</h3>
+                        <Badge className={getTipoBadgeColor(efemeride.tipo)}>
+                          {TIPOS_EFEMERIDES.find(t => t.value === efemeride.tipo)?.label}
+                        </Badge>
                       </div>
+                      <p className="text-gray-700">{efemeride.descripcion}</p>
                     </div>
-                    <Badge className={getTipoBadgeColor(efemeride.tipo)}>
-                      {efemeride.tipo}
-                    </Badge>
                   </div>
-                </CardHeader>
-
-                {efemeride.referenciaHistorica && (
-                  <CardContent className="pt-4">
-                    <div className="bg-muted/50 p-4 rounded-lg">
-                      <p className="text-sm text-foreground leading-relaxed">
-                        <strong className="text-primary">Referencia histórica:</strong>{" "}
-                        {efemeride.referenciaHistorica}
-                      </p>
-                    </div>
-                    {efemeride.pais && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        📍 {efemeride.pais}
-                        {efemeride.esInternacional === "si" && " (Internacional)"}
-                      </p>
-                    )}
-                  </CardContent>
-                )}
-
-                {esDestacada(efemeride.dia, efemeride.mes) && (
-                  <CardContent className="pt-0">
-                    <div className="bg-primary/20 p-4 rounded-lg border-2 border-primary">
-                      <p className="text-sm font-semibold text-primary">
-                        ⭐ Fecha destacada para el Proyecto Sindicalismo Trans-Formador
-                      </p>
-                    </div>
-                  </CardContent>
-                )}
+                </CardContent>
               </Card>
-            ))}
-          </div>
-        ) : (
-          <Card className="border-muted">
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground text-lg">
-                No hay efemérides registradas para este mes y filtro.
-              </p>
-            </CardContent>
-          </Card>
-        )}
+            ))
+          )}
+        </div>
 
-        {/* Leyenda de Colores */}
-        <Card className="mt-8 border-primary/30">
-          <CardHeader>
-            <CardTitle className="text-lg">Leyenda de Tipos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              {TIPOS_EFEMERIDES.filter((t) => t.value !== "todos").map((tipo) => (
-                <Badge key={tipo.value} className={getTipoBadgeColor(tipo.value)}>
-                  {tipo.label}
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Nota */}
+        <div className="mt-8 text-center text-sm text-gray-600">
+          <p>💡 Esta es una versión simplificada. Conectá un backend para cargar todas las efemérides.</p>
+        </div>
       </div>
     </div>
   );
