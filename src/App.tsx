@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Route, Switch } from "wouter";
 import HomeSimple from "./pages/HomeSimple";
 import Calendario from "./pages/Calendario";
-import Anexo from "./pages/Anexo";
+import Anexo from "./pages/Anexos";
 import Mapa from "./pages/Mapa";
 import RadarTrans from "./pages/RadarTrans";
 import Encuentros from "./pages/Encuentros";
