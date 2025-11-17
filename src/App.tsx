@@ -2,10 +2,10 @@ import { useRef } from "react";
 import { Route, Switch } from "wouter";
 import HomeSimple from "./pages/HomeSimple";
 import Calendario from "./pages/Calendario";
-import Anexos from "./pages/Anexos";
+import Anexo from "./pages/Anexo";
 import Mapa from "./pages/Mapa";
-import Radar from "./pages/Radar";
-import HistoriaEncuentros from "./pages/HistoriaEncuentros";
+import RadarTrans from "./pages/RadarTrans";
+import Encuentros from "./pages/Encuentros";
 import ChatWidget, { ChatWidgetRef } from "./components/ChatWidget";
 
 export default function App() {
@@ -22,16 +22,19 @@ export default function App() {
           <Calendario />
         </Route>
         <Route path="/anexos">
-          <Anexos />
+          <Anexo />
         </Route>
         <Route path="/mapa">
           <Mapa />
         </Route>
         <Route path="/radar">
-          <Radar />
+          <RadarTrans />
+        </Route>
+        <Route path="/encuentros">
+          <Encuentros />
         </Route>
         <Route path="/historia">
-          <HistoriaEncuentros />
+          <Encuentros />
         </Route>
         <Route>
           <div className="min-h-screen flex items-center justify-center">
